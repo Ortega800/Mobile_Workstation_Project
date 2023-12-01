@@ -70,16 +70,16 @@ public:
       return -1;
     }
 
-    /* Set Baud Rate to 115200 */
+    /* Set Baud Rate to 38400 */
     errno = 0;
-    if (cfsetospeed (&tty, B115200) != 0)
+    if (cfsetospeed (&tty, B38400) != 0)
     {
       std::cout << "Error " << errno << " from cfsetospeed: " << strerror(errno) << std::endl;
       return -1;
     }
 
     errno = 0;
-    if (cfsetispeed (&tty, B115200) != 0)
+    if (cfsetispeed (&tty, B38400) != 0)
     {
       std::cout << "Error " << errno << " from cfsetispeed: " << strerror(errno) << std::endl;
       return -1;
@@ -284,6 +284,119 @@ public:
       return -1;
     }
 
+    return 0;
+  }
+
+  /* Reads in velocity values sent from the arduino.
+   * Places values in the respective arguments.
+   * Returns zero on success, and negative one otherwise. 
+   */
+  int read_motor_velocities(double* left_motor_velocity, double* right_motor_velocity)
+  {
+    // Retrieve the response.
+    unsigned char response[BUFFER_SIZE] = {0};
+
+    /* Receive current velocity from the Arduino. 
+     * The response should be in the format L.L,R.R\n  where the L.L represents the 
+     * floating point number of the left wheel velocity and the R.R represents the 
+     * floating point number of the right wheel velocity with both values separated
+     * by a comma character and the message is appended with a newline character '\n'
+     * as shown above.
+     */
+    if (receive_msg(response) != 0)
+    {
+      /* Message was not recieved. */
+      return -1;
+    }
+
+    char *endPtr;
+
+    /* Reset errono to zero. */
+    errno = 0;
+
+    /* Read in the left motor velocity value from the response message. */
+    *left_motor_velocity = strtod((char*)response, &endPtr);
+
+    if (errno != 0 || (*endPtr) != ',' || endPtr != (char*)response)
+    {
+      /* An error occured when converting, the digits before 
+        * the comma character was not reached, or no conversion was done.
+        */
+      return -1;
+    }
+
+    /* Move to the character that is after the comma character. */
+    endPtr++;
+
+    /* Read in the right motor velocity value from the response message. */
+    *right_motor_velocity = strtod((char*)response, &endPtr);
+
+    if (errno != 0 || (*endPtr) != '\n' || endPtr != (char*)response)
+    {
+      /* An error occured when converting, the digits before 
+        * the comma character was not reached, or no conversion was done.
+        */
+      return -1;
+    }
+
+    /* Successful conversion. */
+    return 0;
+  }
+
+  /* Reads in tachometer values sent from the arduino.
+   * Places values in the respective arguments.
+   * Returns zero on success, and negative one otherwise. 
+   */
+  int read_motor_tachometers(long* left_motor_tachometer, long* right_motor_tachometer)
+  {
+    // Retrieve the response.
+    unsigned char response[BUFFER_SIZE] = {0};
+
+    /* Receive tachometer values from the Arduino. 
+     * The message should be in the format LLL,RRR\n  where the LLL represents the 
+     * long integer of the left wheel tachometer and the RRR represents the 
+     * long integer of the right wheel tachometer with both values separated
+     * by a comma character and the message is appended with a newline character '\n'
+     * as shown above.
+     */
+    if (receive_msg(response) != 0)
+    {
+      /* Message was not recieved. */
+      return -1;
+    }
+
+    int BASE_10 = 10;
+    char *endPtr;
+
+    /* Reset errono to zero. */
+    errno = 0;
+
+    /* Read in the left motor velocity value from the response message. */
+    *left_motor_tachometer = strtol((char*)response, &endPtr, BASE_10);
+
+    if (errno != 0 || (*endPtr) != ',' || endPtr != (char*)response)
+    {
+      /* An error occured when converting, the digits before 
+        * the comma character was not reached, or no conversion was done.
+        */
+      return -1;
+    }
+
+    /* Move to the character that is after the comma character. */
+    endPtr++;
+
+    /* Read in the right motor velocity value from the response message. */
+    *right_motor_tachometer = strtol((char*)response, &endPtr, BASE_10);
+
+    if (errno != 0 || (*endPtr) != '\n' || endPtr != (char*)response)
+    {
+      /* An error occured when converting, the digits before 
+        * the comma character was not reached, or no conversion was done.
+        */
+      return -1;
+    }
+
+    /* Successful conversion. */
     return 0;
   }
 
