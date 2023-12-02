@@ -174,38 +174,38 @@ hardware_interface::return_type DiffDriveArduinoHardware::read(
   }
 
 
-  double delta_seconds = period.seconds();
+  // double delta_seconds = period.seconds();
 
-  wheel_l_.pos = wheel_l_.pos + delta_seconds * wheel_l_.cmd;
-  wheel_l_.vel = wheel_l_.cmd;
+  // wheel_l_.pos = wheel_l_.pos + delta_seconds * wheel_l_.cmd;
+  // wheel_l_.vel = wheel_l_.cmd;
 
-  wheel_r_.pos = wheel_r_.pos + delta_seconds * wheel_r_.cmd;
-  wheel_r_.vel = wheel_r_.cmd;
+  // wheel_r_.pos = wheel_r_.pos + delta_seconds * wheel_r_.cmd;
+  // wheel_r_.vel = wheel_r_.cmd;
 
 
-  // unsigned char cmd[3] = "R\n";
+  unsigned char cmd[] = "\nR\n";
 
-  // if (comms_.send_msg(cmd, 2) != 0)
-  // {
-  //   /* An error occured while writing the message to serial port. */
-  //   RCLCPP_INFO(rclcpp::get_logger("DiffDriveArduinoHardware"), "ERROR: Could not send command to read velocity and tachometer values from the arduino microcontroller.");
-  // }
+  if (comms_.send_msg(cmd, 4) != 0)
+  {
+    /* An error occured while writing the message to serial port. */
+    RCLCPP_INFO(rclcpp::get_logger("DiffDriveArduinoHardware"), "ERROR: Could not send command to read velocity and tachometer values from the arduino microcontroller.");
+  }
 
-  // /* Receive current motor velocity values from the Arduino. */
-  // if (comms_.read_motor_velocities(&wheel_l_.vel, &wheel_r_.vel) != 0)
-  // {
-  //   RCLCPP_INFO(rclcpp::get_logger("DiffDriveArduinoHardware"), "ERROR: Did not receive valid motor velocity values from arduino microcontroller.");
-  // }
+  /* Receive current motor velocity values from the Arduino. */
+  if (comms_.read_motor_velocities(&wheel_l_.vel, &wheel_r_.vel) != 0)
+  {
+    RCLCPP_INFO(rclcpp::get_logger("DiffDriveArduinoHardware"), "ERROR: Did not receive valid motor velocity values from arduino microcontroller.");
+  }
 
-  // /* Receive motor tachometer values from the Arduino. */
-  // if (comms_.read_motor_tachometers(&wheel_l_.tach, &wheel_r_.tach) != 0)
-  // {
-  //   RCLCPP_INFO(rclcpp::get_logger("DiffDriveArduinoHardware"), "ERROR: Did not receive valid motor tachometer values from arduino microcontroller.");
-  // }
+  /* Receive motor tachometer values from the Arduino. */
+  if (comms_.read_motor_tachometers(&wheel_l_.tach, &wheel_r_.tach) != 0)
+  {
+    RCLCPP_INFO(rclcpp::get_logger("DiffDriveArduinoHardware"), "ERROR: Did not receive valid motor tachometer values from arduino microcontroller.");
+  }
 
-  // /* Compute wheel position. */
-  // wheel_l_.pos = wheel_l_.tach * wheel_l_.metersPerCount;
-  // wheel_r_.pos = wheel_r_.tach * wheel_r_.metersPerCount;
+  /* Compute wheel position. */
+  wheel_l_.pos = wheel_l_.tach * wheel_l_.metersPerCount;
+  wheel_r_.pos = wheel_r_.tach * wheel_r_.metersPerCount;
 
   return hardware_interface::return_type::OK;
 }

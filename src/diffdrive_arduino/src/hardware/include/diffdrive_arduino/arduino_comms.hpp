@@ -309,6 +309,8 @@ public:
       return -1;
     }
 
+    //std::cout << response << std::endl;
+
     char *endPtr;
 
     /* Reset errono to zero. */
@@ -338,6 +340,7 @@ public:
         */
       return -1;
     }
+    //std::cout << "Velocity: " << *left_motor_velocity << "," << *right_motor_velocity << std::endl;
 
     /* Successful conversion. */
     return 0;
@@ -364,6 +367,7 @@ public:
       /* Message was not recieved. */
       return -1;
     }
+    //std::cout << response << std::endl;
 
     int BASE_10 = 10;
     char *endPtr;
@@ -395,6 +399,8 @@ public:
         */
       return -1;
     }
+
+    //std::cout << "Tachometer: " << *left_motor_tachometer << "," << *right_motor_tachometer << std::endl;
 
     /* Successful conversion. */
     return 0;
